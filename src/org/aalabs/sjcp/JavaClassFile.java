@@ -25,33 +25,15 @@
  * or implied, of Andrew Porokhin.
  *
  */
-package org.aalabs.sjcp.cp;
+package org.aalabs.sjcp;
 
 /**
- * <ul>
- * <li> UTF8 String
- * <li> Integer
- * <li> Float
- * <li> Long
- * <li> Double
- * </ul>
- * 
+ * Simple Java class file object.
  * @author Andrew Porokhin
  */
-public class ConstantPrimitive<T> extends ConstantPoolInfo {
-    private final T value;
-
-    ConstantPrimitive(byte tag, T value) {
-        super(tag);
-        this.value = value;
-    }
-
-    public T getValue() {
-        return value;
-    }
-
-    @Override
-    public String toString() {
-        return "Primitive[" + tag + "]: " + value;
-    }
+public abstract class JavaClassFile {
+    public abstract int getMajorVersion();
+    public abstract int getMinorVersion();
+    public abstract String getCanonicalName();
+    public abstract String getSuperClassCanonicalName();
 }

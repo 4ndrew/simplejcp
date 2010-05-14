@@ -58,19 +58,43 @@ public class JavaClassReader {
             javaClassFile.setMajorVersion(di.readUnsignedShort());
 
             int contantPoolSize = di.readUnsignedShort();
+            logger.info("Reading " + contantPoolSize + " constants...");
+
             ArrayList<ConstantPoolInfo> cpiList = new ArrayList<ConstantPoolInfo>(contantPoolSize);
-//            StringBuffer sb = new StringBuffer(2048);
-//            sb.append("Dump of the CONTANT POOL\n");
-            for (int i = 1; i < contantPoolSize; i++) {
+
+            boolean isDebugLevel = logger.isLoggable(Level.INFO);
+            StringBuffer sb = null;
+            if (isDebugLevel) {
+                sb = new StringBuffer(2048);
+                sb.append("Dump of the CONTANT POOL\n");
+            }
+
+            while (cpiList.size() < contantPoolSize - 1) {
                 byte tag = di.readByte();
                 ConstantPoolInfo cpi = ConstantPoolInfo.readContantPoolInfo(tag, di);
                 cpiList.add(cpi);
 
-                // sb.append("[").append(i).append("]").append(cpi.toString()).append("\n");
+                if (isDebugLevel) {
+                    sb.append("[").append(cpiList.size()).append("]");
+                    sb.append(cpi != null ? cpi.toString() : "null").append("\n");
+                }
+
+                // According to VM Spec (nightmare... -_-):
+                // All 8-byte constants take up two entries in the constant_pool
+                // table of the class file. If a CONSTANT_Long_info or
+                // CONSTANT_Double_info structure is the item in the constant_pool
+                // table at index n, then the next usable item in the pool is
+                // located at index n+2. The constant_pool  index n+1 must be
+                // valid but is considered unusable.
+                if (tag == ConstantPoolInfo.CONTANT_DOUBLE || tag == ConstantPoolInfo.CONTANT_LONG) {
+                    cpiList.add(null);
+                }
             }
             javaClassFile.setConstantPoolList(cpiList);
 
-            // logger.info(sb.toString());
+            if (isDebugLevel) {
+                logger.info(sb.toString());
+            }
 
             javaClassFile.setAccessFlags(di.readUnsignedShort());
             javaClassFile.setThisClassIndex(di.readUnsignedShort());
