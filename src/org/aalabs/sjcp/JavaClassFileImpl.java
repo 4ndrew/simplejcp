@@ -33,6 +33,7 @@ import org.aalabs.sjcp.cp.ConstantPrimitive;
 import java.util.List;
 
 /**
+ * Implementation of the Java class file.
  * @author Andrew Porokhin
  */
 public class JavaClassFileImpl extends JavaClassFile {

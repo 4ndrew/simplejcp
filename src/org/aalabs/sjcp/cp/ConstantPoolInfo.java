@@ -32,6 +32,7 @@ import java.io.IOException;
 import java.util.logging.Logger;
 
 /**
+ * Java Class File ConstantPoolInfo representation.
  * @author Andrew Porokhin
  */
 public class ConstantPoolInfo {

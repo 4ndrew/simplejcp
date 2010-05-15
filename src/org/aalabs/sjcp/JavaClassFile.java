@@ -32,8 +32,27 @@ package org.aalabs.sjcp;
  * @author Andrew Porokhin
  */
 public abstract class JavaClassFile {
+    /**
+     * Get major version of the Java class.
+     * @return major version number
+     */
     public abstract int getMajorVersion();
+
+    /**
+     * Get minor version of the Java class.
+     * @return minor version number
+     */
     public abstract int getMinorVersion();
+
+    /**
+     * Get canonical name of the Java class.
+     * @return String with canonical Java class name.
+     */
     public abstract String getCanonicalName();
+
+    /**
+     * Get super class canonical name of the Java class.
+     * @return String with canonical name of the super class.
+     */
     public abstract String getSuperClassCanonicalName();
 }
