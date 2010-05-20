@@ -46,8 +46,9 @@ public class JavaClassReader {
     private static final Logger logger = Logger.getLogger(JavaClassReader.class.getName());
 
     public static final JavaClassFile processFile(File f) {
+        DataInputStream di = null;
         try {
-            DataInputStream di = new DataInputStream(new FileInputStream(f));
+            di = new DataInputStream(new FileInputStream(f));
             int javaMagic = di.readInt();
             if (javaMagic != 0xCAFEBABE) {
                 throw new IllegalArgumentException("Incorrect Java Class File, wrong signature");
@@ -58,13 +59,13 @@ public class JavaClassReader {
             javaClassFile.setMajorVersion(di.readUnsignedShort());
 
             int contantPoolSize = di.readUnsignedShort();
-            logger.info("Reading " + contantPoolSize + " constants...");
-
             ArrayList<ConstantPoolInfo> cpiList = new ArrayList<ConstantPoolInfo>(contantPoolSize);
 
-            boolean isDebugLevel = logger.isLoggable(Level.INFO);
+            boolean isDebugLevel = logger.isLoggable(Level.FINEST);
             StringBuffer sb = null;
             if (isDebugLevel) {
+                logger.finest("Reading " + contantPoolSize + " constants...");
+
                 sb = new StringBuffer(2048);
                 sb.append("Dump of the CONTANT POOL\n");
             }
@@ -93,24 +94,24 @@ public class JavaClassReader {
             javaClassFile.setConstantPoolList(cpiList);
 
             if (isDebugLevel) {
-                logger.info(sb.toString());
+                logger.finest(sb.toString());
             }
 
             javaClassFile.setAccessFlags(di.readUnsignedShort());
             javaClassFile.setThisClassIndex(di.readUnsignedShort());
             javaClassFile.setSuperClassIndex(di.readUnsignedShort());
 
-//            logger.info("Access flags: " + javaClassFile.getAccessFlags());
-//            logger.info("This class: " + javaClassFile.getThisClassIndex());
-//            logger.info("Super class: " + javaClassFile.getSuperClassIndex());
-//
-//            logger.info("Finished.");
-
             return javaClassFile;
         } catch (FileNotFoundException ex) {
             logger.log(Level.SEVERE, null, ex);
         } catch (IOException ex) {
             logger.log(Level.SEVERE, null, ex);
+        } finally {
+            try {
+                di.close();
+            } catch (IOException ex) {
+                logger.log(Level.SEVERE, null, ex);
+            }
         }
         return null;
     }
