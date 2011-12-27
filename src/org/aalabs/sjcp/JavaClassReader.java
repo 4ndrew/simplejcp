@@ -41,70 +41,75 @@ import java.util.logging.Logger;
 public class JavaClassReader {
     private static final Logger logger = Logger.getLogger(JavaClassReader.class.getName());
 
+    public static JavaClassFile processStream(InputStream inputStream) throws IOException {
+        DataInputStream di = new DataInputStream(inputStream);
+        int javaMagic = di.readInt();
+        if (javaMagic != 0xCAFEBABE) {
+            throw new IllegalArgumentException("Incorrect Java Class File, wrong signature");
+        }
+
+        JavaClassFileImpl javaClassFile = new JavaClassFileImpl();
+        javaClassFile.setMinorVersion(di.readUnsignedShort());
+        javaClassFile.setMajorVersion(di.readUnsignedShort());
+
+        int constantPoolSize = di.readUnsignedShort();
+        ArrayList<ConstantPoolInfo> cpiList = new ArrayList<ConstantPoolInfo>(constantPoolSize);
+
+        final boolean isDebugLevel = logger.isLoggable(Level.FINEST);
+        logger.log(Level.FINEST, "Reading {0} constants...", constantPoolSize);
+        logger.log(Level.FINEST, "Dump of the CONSTANT POOL:");
+
+        StringBuffer sb = null;
+        if (isDebugLevel) {
+            sb = new StringBuffer(2048);
+        }
+
+        while (cpiList.size() < constantPoolSize - 1) {
+            byte tag = di.readByte();
+            ConstantPoolInfo cpi = ConstantPoolInfo.readConstantPoolInfo(tag, di);
+            cpiList.add(cpi);
+
+            if (isDebugLevel) {
+                sb.append("[").append(cpiList.size()).append("]");
+                sb.append(cpi != null ? cpi.toString() : "null").append("\n");
+            }
+
+            // According to VM Spec (nightmare... -_-):
+            // All 8-byte constants take up two entries in the constant_pool
+            // table of the class file. If a CONSTANT_Long_info or
+            // CONSTANT_Double_info structure is the item in the constant_pool
+            // table at index n, then the next usable item in the pool is
+            // located at index n+2. The constant_pool  index n+1 must be
+            // valid but is considered unusable.
+            if (tag == ConstantPoolInfo.CONSTANT_DOUBLE || tag == ConstantPoolInfo.CONSTANT_LONG) {
+                cpiList.add(null);
+            }
+        }
+        javaClassFile.setConstantPoolList(cpiList);
+
+        logger.log(Level.FINEST, "{0}", sb);
+
+        javaClassFile.setAccessFlags(di.readUnsignedShort());
+        javaClassFile.setThisClassIndex(di.readUnsignedShort());
+        javaClassFile.setSuperClassIndex(di.readUnsignedShort());
+
+        return javaClassFile;
+    }
+
     public static JavaClassFile processFile(File f) {
-        DataInputStream di = null;
+        FileInputStream fileInputStream = null;
         try {
-            di = new DataInputStream(new FileInputStream(f));
-            int javaMagic = di.readInt();
-            if (javaMagic != 0xCAFEBABE) {
-                throw new IllegalArgumentException("Incorrect Java Class File, wrong signature");
-            }
-
-            JavaClassFileImpl javaClassFile = new JavaClassFileImpl();
-            javaClassFile.setMinorVersion(di.readUnsignedShort());
-            javaClassFile.setMajorVersion(di.readUnsignedShort());
-
-            int constantPoolSize = di.readUnsignedShort();
-            ArrayList<ConstantPoolInfo> cpiList = new ArrayList<ConstantPoolInfo>(constantPoolSize);
-
-            final boolean isDebugLevel = logger.isLoggable(Level.FINEST);
-            StringBuffer sb = null;
-            if (isDebugLevel) {
-                logger.finest("Reading " + constantPoolSize + " constants...");
-
-                sb = new StringBuffer(2048);
-                sb.append("Dump of the CONSTANT POOL\n");
-            }
-
-            while (cpiList.size() < constantPoolSize - 1) {
-                byte tag = di.readByte();
-                ConstantPoolInfo cpi = ConstantPoolInfo.readConstantPoolInfo(tag, di);
-                cpiList.add(cpi);
-
-                if (isDebugLevel) {
-                    sb.append("[").append(cpiList.size()).append("]");
-                    sb.append(cpi != null ? cpi.toString() : "null").append("\n");
-                }
-
-                // According to VM Spec (nightmare... -_-):
-                // All 8-byte constants take up two entries in the constant_pool
-                // table of the class file. If a CONSTANT_Long_info or
-                // CONSTANT_Double_info structure is the item in the constant_pool
-                // table at index n, then the next usable item in the pool is
-                // located at index n+2. The constant_pool  index n+1 must be
-                // valid but is considered unusable.
-                if (tag == ConstantPoolInfo.CONSTANT_DOUBLE || tag == ConstantPoolInfo.CONSTANT_LONG) {
-                    cpiList.add(null);
-                }
-            }
-            javaClassFile.setConstantPoolList(cpiList);
-
-            if (isDebugLevel) {
-                logger.finest(sb.toString());
-            }
-
-            javaClassFile.setAccessFlags(di.readUnsignedShort());
-            javaClassFile.setThisClassIndex(di.readUnsignedShort());
-            javaClassFile.setSuperClassIndex(di.readUnsignedShort());
-
-            return javaClassFile;
+            fileInputStream = new FileInputStream(f);
+            return processStream(fileInputStream);
         } catch (FileNotFoundException ex) {
             logger.log(Level.SEVERE, null, ex);
         } catch (IOException ex) {
             logger.log(Level.SEVERE, null, ex);
         } finally {
             try {
-                di.close();
+                if (fileInputStream != null) {
+                    fileInputStream.close();
+                }
             } catch (IOException ex) {
                 logger.log(Level.SEVERE, null, ex);
             }
