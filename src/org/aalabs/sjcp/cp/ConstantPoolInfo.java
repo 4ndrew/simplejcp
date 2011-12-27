@@ -1,5 +1,5 @@
 /*
- * Copyright 2010 Andrew Porokhin. All rights reserved.
+ * Copyright 2011 Andrew Porokhin. All rights reserved.
  * Redistribution and use in source and binary forms, with or without modification, are
  * permitted provided that the following conditions are met:
  *
@@ -23,7 +23,6 @@
  * The views and conclusions contained in the software and documentation are those of the
  * authors and should not be interpreted as representing official policies, either expressed
  * or implied, of Andrew Porokhin.
- *
  */
 package org.aalabs.sjcp.cp;
 
@@ -38,63 +37,59 @@ import java.util.logging.Logger;
 public class ConstantPoolInfo {
     private static final Logger logger = Logger.getLogger(ConstantPoolInfo.class.getName());
 
-    public static final byte CONTANT_UTF8 = 1;
-    public static final byte CONTANT_INT = 3;
-    public static final byte CONTANT_FLOAT = 4;
-    public static final byte CONTANT_LONG = 5;
-    public static final byte CONTANT_DOUBLE = 6;
-    public static final byte CONTANT_CLASS_INFO = 7;
-    public static final byte CONTANT_STRING = 8;
-    public static final byte CONTANT_FIELD_REF = 9;
-    public static final byte CONTANT_METHOD_REF = 10;
-    public static final byte CONTANT_INTERFACE_METHOD_REF = 11;
-    public static final byte CONTANT_NAME_AND_TYPE = 12;
+    public static final byte CONSTANT_UTF8 = 1;
+    public static final byte CONSTANT_INT = 3;
+    public static final byte CONSTANT_FLOAT = 4;
+    public static final byte CONSTANT_LONG = 5;
+    public static final byte CONSTANT_DOUBLE = 6;
+    public static final byte CONSTANT_CLASS_INFO = 7;
+    public static final byte CONSTANT_STRING = 8;
+    public static final byte CONSTANT_FIELD_REF = 9;
+    public static final byte CONSTANT_METHOD_REF = 10;
+    public static final byte CONSTANT_INTERFACE_METHOD_REF = 11;
+    public static final byte CONSTANT_NAME_AND_TYPE = 12;
 
     /** Class Info TAG. */
     byte tag;
 
-    public static final ConstantPoolInfo readContantPoolInfo(byte tag, DataInputStream di) throws IOException {
+    public static ConstantPoolInfo readConstantPoolInfo(byte tag, DataInputStream di) throws IOException {
         switch (tag) {
-            case CONTANT_STRING:
+            case CONSTANT_STRING:
                 return new ConstantString(di.readUnsignedShort());
-            case CONTANT_INT:
+            case CONSTANT_INT:
                 return new ConstantPrimitive<Integer>(tag, di.readInt());
-            case CONTANT_FLOAT:
+            case CONSTANT_FLOAT:
                 return new ConstantPrimitive<Float>(tag, di.readFloat());
-            case CONTANT_LONG:
+            case CONSTANT_LONG:
                 return new ConstantPrimitive<Long>(tag, di.readLong());
-            case CONTANT_DOUBLE:
+            case CONSTANT_DOUBLE:
                 return new ConstantPrimitive<Double>(tag, di.readDouble());
-            case CONTANT_UTF8:
+            case CONSTANT_UTF8:
                 String stringVal = di.readUTF();
                 return new ConstantPrimitive<String>(tag, stringVal);
-            case CONTANT_NAME_AND_TYPE:
+            case CONSTANT_NAME_AND_TYPE:
                 return new ConstantNameAndType(di.readUnsignedShort(),
                         di.readUnsignedShort());
-            case CONTANT_CLASS_INFO:
+            case CONSTANT_CLASS_INFO:
                 return new ConstantClassInfo(di.readUnsignedShort());
-            case CONTANT_FIELD_REF:
-            case CONTANT_METHOD_REF:
-            case CONTANT_INTERFACE_METHOD_REF:
+            case CONSTANT_FIELD_REF:
+            case CONSTANT_METHOD_REF:
+            case CONSTANT_INTERFACE_METHOD_REF:
                 return new ConstantReference(tag,
                         di.readUnsignedShort(),
                         di.readUnsignedShort());
             default:
-                logger.warning("Unknown contant type tag: " + tag);
+                logger.warning("Unknown constant type tag: " + tag);
         }
         return null;
     }
 
-    /**
-     * 
-     * @param tag
-     */
     ConstantPoolInfo(byte tag) {
         this.tag = tag;
     }
 
     /**
-     * Returns TAG of the ContantPool info
+     * Returns TAG of the ConstantPool info
      * @return byte value.
      */
     public byte getTag() {

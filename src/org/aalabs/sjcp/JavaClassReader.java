@@ -1,5 +1,5 @@
 /*
- * Copyright 2010 Andrew Porokhin. All rights reserved.
+ * Copyright 2011 Andrew Porokhin. All rights reserved.
  * Redistribution and use in source and binary forms, with or without modification, are
  * permitted provided that the following conditions are met:
  *
@@ -23,16 +23,12 @@
  * The views and conclusions contained in the software and documentation are those of the
  * authors and should not be interpreted as representing official policies, either expressed
  * or implied, of Andrew Porokhin.
- *
  */
 package org.aalabs.sjcp;
 
 import org.aalabs.sjcp.cp.ConstantPoolInfo;
-import java.io.DataInputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
+
+import java.io.*;
 import java.util.ArrayList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -45,7 +41,7 @@ import java.util.logging.Logger;
 public class JavaClassReader {
     private static final Logger logger = Logger.getLogger(JavaClassReader.class.getName());
 
-    public static final JavaClassFile processFile(File f) {
+    public static JavaClassFile processFile(File f) {
         DataInputStream di = null;
         try {
             di = new DataInputStream(new FileInputStream(f));
@@ -58,21 +54,21 @@ public class JavaClassReader {
             javaClassFile.setMinorVersion(di.readUnsignedShort());
             javaClassFile.setMajorVersion(di.readUnsignedShort());
 
-            int contantPoolSize = di.readUnsignedShort();
-            ArrayList<ConstantPoolInfo> cpiList = new ArrayList<ConstantPoolInfo>(contantPoolSize);
+            int constantPoolSize = di.readUnsignedShort();
+            ArrayList<ConstantPoolInfo> cpiList = new ArrayList<ConstantPoolInfo>(constantPoolSize);
 
-            boolean isDebugLevel = logger.isLoggable(Level.FINEST);
+            final boolean isDebugLevel = logger.isLoggable(Level.FINEST);
             StringBuffer sb = null;
             if (isDebugLevel) {
-                logger.finest("Reading " + contantPoolSize + " constants...");
+                logger.finest("Reading " + constantPoolSize + " constants...");
 
                 sb = new StringBuffer(2048);
-                sb.append("Dump of the CONTANT POOL\n");
+                sb.append("Dump of the CONSTANT POOL\n");
             }
 
-            while (cpiList.size() < contantPoolSize - 1) {
+            while (cpiList.size() < constantPoolSize - 1) {
                 byte tag = di.readByte();
-                ConstantPoolInfo cpi = ConstantPoolInfo.readContantPoolInfo(tag, di);
+                ConstantPoolInfo cpi = ConstantPoolInfo.readConstantPoolInfo(tag, di);
                 cpiList.add(cpi);
 
                 if (isDebugLevel) {
@@ -87,7 +83,7 @@ public class JavaClassReader {
                 // table at index n, then the next usable item in the pool is
                 // located at index n+2. The constant_pool  index n+1 must be
                 // valid but is considered unusable.
-                if (tag == ConstantPoolInfo.CONTANT_DOUBLE || tag == ConstantPoolInfo.CONTANT_LONG) {
+                if (tag == ConstantPoolInfo.CONSTANT_DOUBLE || tag == ConstantPoolInfo.CONSTANT_LONG) {
                     cpiList.add(null);
                 }
             }
@@ -116,7 +112,7 @@ public class JavaClassReader {
         return null;
     }
 
-    public static final void main(String[] args) {
+    public static void main(String[] args) {
         if (args.length > 0) {
             JavaClassFile f = JavaClassReader.processFile(new File(args[0]));
             logger.info("Class: " + f.getCanonicalName()

@@ -1,5 +1,5 @@
 /*
- * Copyright 2010 Andrew Porokhin. All rights reserved.
+ * Copyright 2011 Andrew Porokhin. All rights reserved.
  * Redistribution and use in source and binary forms, with or without modification, are
  * permitted provided that the following conditions are met:
  *
@@ -23,19 +23,18 @@
  * The views and conclusions contained in the software and documentation are those of the
  * authors and should not be interpreted as representing official policies, either expressed
  * or implied, of Andrew Porokhin.
- *
  */
 package org.aalabs.sjcp.cp;
 
 /**
- * Contant Class Info.
+ * Constant Class Info.
  * @author Andrew Porokhin
  */
 public class ConstantClassInfo extends ConstantPoolInfo {
     private final int nameIndex;
 
     ConstantClassInfo(int nameIndex) {
-        super(CONTANT_CLASS_INFO);
+        super(CONSTANT_CLASS_INFO);
         this.nameIndex = nameIndex;
     }
 

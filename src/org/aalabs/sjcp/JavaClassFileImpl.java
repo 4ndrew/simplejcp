@@ -1,5 +1,5 @@
 /*
- * Copyright 2010 Andrew Porokhin. All rights reserved.
+ * Copyright 2011 Andrew Porokhin. All rights reserved.
  * Redistribution and use in source and binary forms, with or without modification, are
  * permitted provided that the following conditions are met:
  *
@@ -23,13 +23,13 @@
  * The views and conclusions contained in the software and documentation are those of the
  * authors and should not be interpreted as representing official policies, either expressed
  * or implied, of Andrew Porokhin.
- *
  */
 package org.aalabs.sjcp;
 
 import org.aalabs.sjcp.cp.ConstantClassInfo;
 import org.aalabs.sjcp.cp.ConstantPoolInfo;
 import org.aalabs.sjcp.cp.ConstantPrimitive;
+
 import java.util.List;
 
 /**
@@ -37,7 +37,7 @@ import java.util.List;
  * @author Andrew Porokhin
  */
 public class JavaClassFileImpl extends JavaClassFile {
-    private List<ConstantPoolInfo> contantPoolList = null;
+    private List<ConstantPoolInfo> constantPoolList = null;
     private int majorVersion = -1;
     private int minorVersion = -1;
     private int thisClassIndex = -1;
@@ -46,7 +46,7 @@ public class JavaClassFileImpl extends JavaClassFile {
     private int accessFlags = -1;
 
     void setConstantPoolList(List<ConstantPoolInfo> constantPoolList) {
-        this.contantPoolList = constantPoolList;
+        this.constantPoolList = constantPoolList;
     }
 
     void setThisClassIndex(int thisClassIndex) {
@@ -82,13 +82,14 @@ public class JavaClassFileImpl extends JavaClassFile {
     }
 
     ConstantPoolInfo getConstantPoolInfo(int index) {
-        return contantPoolList.get(index - 1);
+        return constantPoolList.get(index - 1);
     }
 
     String getClassName(int classPoolInfoIndex) {
         ConstantPoolInfo cpi = getConstantPoolInfo(classPoolInfoIndex);
         if (cpi instanceof ConstantClassInfo) {
             int nameIndex = ((ConstantClassInfo) cpi).getNameIndex();
+            //noinspection unchecked
             return ((ConstantPrimitive<String>) getConstantPoolInfo(nameIndex)).getValue();
         }
 

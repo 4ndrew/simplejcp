@@ -1,5 +1,5 @@
 /*
- * Copyright 2010 Andrew Porokhin. All rights reserved.
+ * Copyright 2011 Andrew Porokhin. All rights reserved.
  * Redistribution and use in source and binary forms, with or without modification, are
  * permitted provided that the following conditions are met:
  *
@@ -23,7 +23,6 @@
  * The views and conclusions contained in the software and documentation are those of the
  * authors and should not be interpreted as representing official policies, either expressed
  * or implied, of Andrew Porokhin.
- *
  */
 package org.aalabs.sjcp.cp;
 
@@ -37,6 +36,11 @@ package org.aalabs.sjcp.cp;
  * </ul>
  * 
  * @author Andrew Porokhin
+ * @see ConstantClassInfo#CONSTANT_STRING
+ * @see ConstantClassInfo#CONSTANT_INT
+ * @see ConstantClassInfo#CONSTANT_FLOAT
+ * @see ConstantClassInfo#CONSTANT_LONG
+ * @see ConstantClassInfo#CONSTANT_DOUBLE
  */
 public class ConstantPrimitive<T> extends ConstantPoolInfo {
     private final T value;
