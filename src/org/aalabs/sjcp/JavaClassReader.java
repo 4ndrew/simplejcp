@@ -120,10 +120,9 @@ public class JavaClassReader {
     public static void main(String[] args) {
         if (args.length > 0) {
             JavaClassFile f = JavaClassReader.processFile(new File(args[0]));
-            logger.info("Class: " + f.getCanonicalName()
-                    + " super type of " + f.getSuperClassCanonicalName());
-
-            logger.info("..Version: " + f.getMajorVersion() + "." + f.getMinorVersion());
+            logger.log(Level.INFO, "Class: {0} super type of {1}",
+                    new Object[] { f.getCanonicalName(), f.getSuperClassCanonicalName() });
+            logger.log(Level.INFO, "..Version: {0}.{1}", new Object[]{f.getMajorVersion(), f.getMinorVersion()});
         } else {
             logger.warning("Please specify class file name");
         }
